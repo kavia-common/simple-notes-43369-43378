@@ -28,9 +28,16 @@ repositories {
 }
 
 dependencies {
+    // Core Spring Boot starters (use only what is managed by the Boot BOM)
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    
+    // Bean Validation provider (with Expression Language support for Hibernate Validator)
+    implementation 'org.hibernate.validator:hibernate-validator:8.0.1.Final'
+    implementation 'org.glassfish:jakarta.el:4.0.2'
+    
+    // OpenAPI/Swagger (must match Spring Boot 3.x; 2.6.x series is compatible)
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
 
     // Explicitly DO NOT use devtools to prevent blocking CI/build environments
@@ -41,11 +48,16 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
-// Exclude devtools (in case brought in transitively) and unwanted web modules
+/*
+ * Exclude devtools (in case brought in transitively) and unwanted spring-web modules,
+ * and any accidental old Springdoc modules (none present now, but future-proof).
+ */
 configurations.all {
     exclude group: "org.springframework.boot", module: "spring-boot-devtools"
     exclude group: "org.springframework", module: "spring-webmvc"
     exclude group: "org.springframework", module: "spring-web"
+    exclude group: "org.springdoc", module: "springdoc-openapi-webmvc-core"
+    exclude group: "org.springdoc", module: "springdoc-openapi-ui"
 }
 
 // Use JUnit platform for tests
