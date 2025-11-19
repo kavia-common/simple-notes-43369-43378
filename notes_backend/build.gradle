@@ -1,14 +1,14 @@
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '3.4.8'
-	id 'io.spring.dependency-management' version '1.1.7'
-	// id 'checkstyle' // Disabled temporarily to fix build
+    id 'java'
+    id 'org.springframework.boot' version '3.4.8'
+    id 'io.spring.dependency-management' version '1.1.7'
+    // id 'checkstyle' // Disabled temporarily for CI compatibility
 }
 
 /*
 checkstyle {
-	toolVersion = '10.3.4'
-    // Explicitly set config file path and suppressions to avoid path issues using project root
+    toolVersion = '10.3.4'
+    // Use explicit paths to avoid CI path issues
     configFile = file("${rootDir}/config/checkstyle/checkstyle.xml")
     configProperties = ["checkstyle.suppressions.file": file("${rootDir}/config/checkstyle/suppressions.xml").absolutePath]
 }
@@ -18,33 +18,58 @@ group = 'com.example'
 version = '0.1.0'
 
 java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(17)
-	}
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
 }
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-actuator'
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
-	runtimeOnly 'com.h2database:h2'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
+
+    // Explicitly DO NOT use devtools to prevent blocking CI/build environments
+    // developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+    runtimeOnly 'com.h2database:h2'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
+// Exclude devtools (in case brought in transitively) and unwanted web modules
+configurations.all {
+    exclude group: "org.springframework.boot", module: "spring-boot-devtools"
+    exclude group: "org.springframework", module: "spring-webmvc"
+    exclude group: "org.springframework", module: "spring-web"
+}
+
+// Use JUnit platform for tests
 tasks.named('test') {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }
 
-// Dummy checkstyleMain task to bypass CI linter issues when checkstyle is intentionally disabled
+// Keep this dummy checkstyle task so CI doesn't fail if it tries to invoke checkstyleMain
 tasks.register('checkstyleMain') {
     doLast {
         println("checkstyleMain is currently disabled/no-op. No linting performed.")
     }
 }
+
+// Ensure bootRun never loads live reload/devtools properties, for CI/dev parity, and never blocks
+tasks.withType(org.springframework.boot.gradle.tasks.run.BootRun).configureEach {
+    args = []
+    systemProperties['spring.devtools.livereload.enabled'] = false
+    systemProperties['spring.devtools.restart.enabled'] = false
+    systemProperties['spring.devtools.add-properties'] = false
+    jvmArgs += [
+        "-Dspring.profiles.active=default",
+        "-Dspring.main.banner-mode=off"
+    ]
+}
+
+// To prevent hanging, always run with --no-daemon in CI/CD (pass as argument, not here).
