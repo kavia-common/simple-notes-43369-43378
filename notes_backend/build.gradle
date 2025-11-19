@@ -66,8 +66,6 @@ dependencies {
 // Exclude only unnecessary tools and old unused Swagger UIs. DO NOT exclude org.springframework:spring-web or spring-webmvc, since they are needed for controllers.
 configurations.all {
     exclude group: "org.springframework.boot", module: "spring-boot-devtools"
-    exclude group: "org.springdoc", module: "springdoc-openapi-webmvc-core"
-    exclude group: "org.springdoc", module: "springdoc-openapi-ui"
 }
 
 // Use JUnit platform for tests
