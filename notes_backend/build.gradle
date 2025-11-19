@@ -32,16 +32,16 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    
+
     // Bean Validation provider (with Expression Language support for Hibernate Validator)
     implementation 'org.hibernate.validator:hibernate-validator:8.0.1.Final'
     implementation 'org.glassfish:jakarta.el:4.0.2'
-    
+
     // OpenAPI/Swagger (must match Spring Boot 3.x; 2.6.x series is compatible)
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
 
-    // Explicitly DO NOT use devtools to prevent blocking CI/build environments
-    // developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    // DO NOT use devtools. No live reload plugin present. 
+    // All runtime/deployment remains lean for CI/container environments.
 
     runtimeOnly 'com.h2database:h2'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
