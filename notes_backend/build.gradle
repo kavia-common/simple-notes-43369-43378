@@ -1,3 +1,12 @@
+/*
+ * RECOMMENDATION FOR FAST, NON-INTERACTIVE DOCKER/CI BUILDS:
+ * - Always run Gradle with --no-daemon and --quiet or --console plain for CI/Docker (avoids hangs).
+ * - Use JVM flags: -Xmx128m -Xms128m -XX:+UseSerialGC -Dspring.main.banner-mode=off -Dspring.main.web-application-type=servlet
+ * - Use: ./gradlew bootRun --no-daemon --console plain or ./gradlew build --no-daemon --console plain
+ * - For Java 17+, prefer smallest image possible; add ENV JAVA_TOOL_OPTIONS="-XX:+UseSerialGC -Xmx128m -Xms128m"
+ * - Health/live endpoints: GET /health (instant), GET /api/info (instant)
+ */
+
 plugins {
     id 'java'
     id 'org.springframework.boot' version '3.4.8'
