@@ -18,7 +18,7 @@ public class SampleDataLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        // Seed a fixed small dataset only if database is empty; avoids unbounded inserts in CI
+        // Seed only if DB empty to avoid slow/duplicate or unintended re-inserts on CI/hot reloads
         noteService.seedSampleData();
     }
 }

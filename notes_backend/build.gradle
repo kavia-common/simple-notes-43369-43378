@@ -14,6 +14,14 @@ plugins {
     // id 'checkstyle' // Disabled temporarily for CI compatibility
 }
 
+// Ensure that only the required dependencies are excluded (spring-boot-devtools, springdoc "webmvc-core" and "ui" to avoid double UI loading), BUT never exclude org.springframework:spring-web or spring-webmvc.
+// Exclude springdoc modules only if they're not needed (here, starter brings only necessary ones).
+configurations.all {
+    exclude group: "org.springframework.boot", module: "spring-boot-devtools"
+    // Keep springdoc-openapi-u* exclusions if only using starter.
+    // DO NOT exclude "org.springframework:spring-web" or "org.springframework:spring-webmvc"
+}
+
 /*
 checkstyle {
     toolVersion = '10.3.4'
